@@ -1,5 +1,5 @@
 # Base image
-FROM python:latest
+FROM python:3.9
 
 COPY *.py /nowarddos/
 COPY requirements.txt /nowarddos/
@@ -7,4 +7,4 @@ COPY requirements.txt /nowarddos/
 WORKDIR /nowarddos
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python", "/nowarddos/updater.py"]
+ENTRYPOINT ["python", "attack.py"]

